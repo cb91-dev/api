@@ -8,9 +8,6 @@ $sess = new sessionManager();
 
 
 
-
-
-
 // IS logged in
 //Note where you are checking if a session pre-exists, what are you doing if it does.
 
@@ -217,6 +214,7 @@ if (isset($_GET['action'])) {
                 $clockN = $_POST['clock_Number'];
                 $pword = $_POST['pword'];
                 $DOB = $_POST['DOB'];
+
                 //Sanitising inbound data
                 $sess->test_input($_POST);
                 if ($sess->validation_pword($pword) && $sess->validation_name($firstName, $lastName) && $sess->validation_Clockon($clockN) && $sess->validation_department($department) && $sess->validation_email($email) && $sess->validation_phone_number($phone_number)) {
@@ -224,12 +222,15 @@ if (isset($_GET['action'])) {
                         $resp_code = 201;
                     } else {
                         $resp_code = 401;
+                   
                     }
                 } else {
                     $resp_code = 401;
+             
                 }
             } else {
                 $resp_code = 401;
+           
             }
             break;
 
@@ -332,14 +333,12 @@ if (isset($_GET['action'])) {
             // Creating new schedule only by manager
         case 'createSchedule':
 
-
-            echo ('insert schedule is good');
-            $resp_code = 210;
-            $resp_body = array('test' => 'true');
-
-            echo ('insert schedule is bad');
-            $resp_code = 410;
-            $resp_body = array('test' => 'true');
+            if (isset($_SESSION['employees_idNumber'])){
+               $dbcon->createSchedule($id,$dep,$dF,$dN,$tF,$tT);
+               $resp_code = 201;
+            }else{
+                $resp_code = 401;
+            }
 
             break;
 
@@ -397,6 +396,65 @@ if (isset($_GET['action'])) {
             break;
            
 
+        ///// Admin 
+///// Updating employee admin side
+        case "upDateEmployee":
+            if ($_SESSION['is_manager'] === true){
+                $objreg = json_decode(file_get_contents("php://input"),true);
+                $email = $_POST['email'];
+                $firstName = $_POST['firstName'];
+                $lastName = $_POST['lastName'];
+                $department = $_POST['department'];
+                $phone_number = $_POST['phone_number'];
+                $clockN = $_POST['clockInNum'];
+                $DOB = $_POST['DOB'];
+             
+                //Sanitising inbound data
+                $sess->test_input($_POST);
+
+                if (
+                    $sess->validation_name($firstName, $lastName) && $sess->validation_Clockon($clockN) && $sess->validation_department($department) && $sess->validation_email($email) && $sess->validation_phone_number($phone_number) && $sess->validation_DOB($DOB)
+                ){
+                    $dbcon->upDateEmployee($fN, $lN, $e, $Dep, $phoneN, $clockN, $DOB, $employees_idNumber);
+                    $resp_code = 201;
+                } else{
+                    $resp_code = 401;
+                }
+
+            } else{
+                $resp_code = 401;
+            }
+            break;
+            ///// Adding new employee admin side
+            case "addNewEmployee":
+                if ($_SESSION['is_manager'] === true){
+                    
+                    $email = $_POST['email'];
+                    $firstName = $_POST['firstName'];
+                    $lastName = $_POST['lastName'];
+                    $department = $_POST['department'];
+                    $phone_number = $_POST['phone_number'];
+                    $clockN = $_POST['clockInNum'];
+                    $pword = $_POST['pword'];
+                    $DOB = $_POST['DOB'];
+                    $iSM = $_POST['is_manager'];
+                 
+                    //Sanitising inbound data
+                    $sess->test_input($_POST);
+    
+                    if (
+                        $sess->validation_pword($pword) && $sess->validation_name($firstName, $lastName) && $sess->validation_Clockon($clockN) && $sess->validation_department($department) && $sess->validation_email($email) && $sess->validation_phone_number($phone_number) && $sess->validation_DOB($DOB)
+                    ){
+                        $dbcon->addNewEmployee($fN, $lN, $e, $Dep, $pN,$iSM, $clockN, $p, $DOB);
+                        $resp_code = 201;
+                    } else{
+                        $resp_code = 401;
+                    }
+    
+                } else{
+                    $resp_code = 401;
+                }
+                break;
 
 
         default:

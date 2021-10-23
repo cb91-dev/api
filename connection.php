@@ -63,10 +63,6 @@ class DB
         }return 0;
     }
 
-    /// 
-    // public function doesUserExist() {
-    //     $sql = "SELECT * FROM Employees
-    // }
     ////------------------Registering new users/////
 
     public function register_new($fN, $lN, $e, $Dep, $pN, $clockN, $p, $DOB)
@@ -235,6 +231,7 @@ class DB
             return false;
         }
     }
+    //Check clock function
     public function checkClock($employees_idNumber)
     {
         $sql = "SELECT * FROM Live_Clock WHERE employees_idNumber = $employees_idNumber
@@ -256,7 +253,7 @@ class DB
     }
 
 
-
+//Clock out function
     public function punchOutclock($employees_idNumber)
     {
         $clockOutTime = date('Y-m-d G:i:s');
@@ -268,7 +265,7 @@ class DB
         $stmt->execute();
     }
 
-
+//Clock in function
     public function punchInclock($clockinNumber, $employees_idNumber)
     {
         $clockInTime = date('Y-m-d G:i:s');
@@ -298,6 +295,11 @@ class DB
             return false;
         }
     }
+
+
+    ///////////-----ADMIN------------///////////////////
+
+
    ///---- Viewing ALL details for Team members ----///
    public function viewAllEmployees()
    {
@@ -309,7 +311,78 @@ class DB
        return $res;
 
    }
+   //////////----------Create Schedule------//////////////
+   public function createSchedule ($id,$dep,$dF,$dN,$tF,$tT){
+    $sql = "INSERT INTO schedule (employees_idNumber, Department, dateFor,dayName, time_from, time_till)
+    VALUES ('$id', '$dep', '$dF', '$dN', '$tF','$tT')";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->bindParam(':employees_idNumber', $id, PDO::PARAM_STR);
+    $stmt->bindParam(':Department', $dep, PDO::PARAM_STR);
+    $stmt->bindParam(':dateFor', $dF, PDO::PARAM_STR);
+    $stmt->bindParam(':dayName', $dN, PDO::PARAM_STR);
+    $stmt->bindParam(':time_from', $tF, PDO::PARAM_STR);
+    $stmt->bindParam(':time_till', $tT, PDO::PARAM_STR);
+    $stmt->execute();
+    if ($stmt->rowCount() == 1) {
+        return true;
+    }
+    return false;
+}
+
+
+  
+    public function upDateEmployee($fN, $lN, $e, $Dep, $phoneN, $clockN,$DOB, $employees_idNumber)
+    {
+        // if ($this->does_email_exist($e) == true)
+        $sql = "UPDATE Employees SET firstName= '$fN', lastName= '$lN', email= '$e', department= '$Dep', phone_number= '$phoneN', clock_Number= '$clockN', DOB= '$DOB' WHERE employees_idNumber = '$employees_idNumber'";
+        $stmt = $this->dbcon->prepare($sql);
+        $stmt->bindParam(':firstName', $fN, PDO::PARAM_STR);
+        $stmt->bindParam(':lastName', $lN, PDO::PARAM_STR);
+        $stmt->bindParam(':email', $e, PDO::PARAM_STR);
+        $stmt->bindParam(':department', $Dep, PDO::PARAM_STR);
+        $stmt->bindParam(':phone_number', $phoneN, PDO::PARAM_STR);
+        $stmt->bindParam(':clock_Number', $clockN, PDO::PARAM_INT);
+        $stmt->bindParam(':dob', $DOB, PDO::PARAM_STR);
+        $stmt->execute();
+        if ($stmt->rowCount() == 1) {
+            return true;
+        }
+        return false;
+    }
+
+
+
+    public function addNewEmployee($fN, $lN, $e, $Dep, $pN,$iSM, $clockN, $p, $DOB)
+    {
+
+        $sql = "INSERT INTO Employees (firstName,lastName,email, department, phone_number,is_manager,clock_Number,pword,DOB) 
+                VALUES (:firstName,:lastName,:email,:department, :phone_number,:is_manage,:clock_Number, :pword,:dob)";
+
+    //// PASSWORD IS HASHED HERE ///////
+        $p = password_hash($p,PASSWORD_DEFAULT);
+        
+        $stmt = $this->dbcon->prepare($sql);
+        $stmt->bindParam(':firstName', $fN, PDO::PARAM_STR);
+        $stmt->bindParam(':lastName', $lN, PDO::PARAM_STR);
+        $stmt->bindParam(':email', $e, PDO::PARAM_STR);
+        $stmt->bindParam(':department', $Dep, PDO::PARAM_STR);
+        $stmt->bindParam(':phone_number', $pN, PDO::PARAM_INT);
+        $stmt->bindParam(':is_manager' , $iSM,PDO::PARAM_INT);
+        $stmt->bindParam(':clock_Number', $clockN, PDO::PARAM_INT);
+        $stmt->bindParam(':pword', $p, PDO::PARAM_STR);
+        $stmt->bindParam(':dob', $DOB, PDO::PARAM_STR);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->execute();
+        if ($stmt->rowCount() == 1) {
+            return true;
+            $_SESSION["employees_idNumber"] = $row["employees_idNumber"];
+        }
+        return false;
+    }
+   
 };
+
+
 
 
 

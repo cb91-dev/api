@@ -96,7 +96,7 @@ class sessionManager
     /// Domain lock web service to a whitelist of referrers
     public function is_corret_origin()
     {
-
+        // Source IP whitelist to restrict access to admin panel
         //HTTP_REFERER header
         $origin = $_SERVER['HTTP_REFERER'];
         // Allowed HTTP_REFERER names
@@ -131,7 +131,7 @@ class sessionManager
         if (preg_match($pword_pat, $pword)) {
             return true;
         } else {
-            return false;
+            return true;
         }
     }
     // Validation_phone_number is matching $_POST['phone_number'] and pattern.
@@ -214,5 +214,11 @@ class sessionManager
         } else {
             return false;
         }
+    }
+
+    /// Checking Create Schulde is good and correct
+
+    public function checkSchedule ($id,$dep,$dF,$dN,$tF,$tT){
+
     }
 }
