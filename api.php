@@ -126,17 +126,20 @@ if (isset($_GET['action'])) {
                 $clockN = $_POST['clockInNum'];
                 $pword = $_POST['pword'];
                 $DOB = $_POST['DOB'];
-
+                // error_log($_POST);
+                error_log(print_r($_POST, true));
+                error_log('1');
                 //Sanitising inbound data
-                $sess->test_input($_POST);
+                // $sess->test_input($_POST);
 
                 if (
                     $sess->validation_pword($pword) && $sess->validation_name($firstName, $lastName) && $sess->validation_Clockon($clockN) && $sess->validation_department($department) && $sess->validation_email($email) && $sess->validation_phone_number($phone_number) && $sess->validation_DOB($DOB)
 
                 ) {
+                    error_log('hi');
                     // Checking that $email is FILTER_VALIDATE_EMAIL
                     if ($sess->emailCheck($email)) {
-
+                        error_log('bye');
                         if ($dbcon->register_new($firstName, $lastName, $email, $department, $phone_number, $clockN, $pword, $DOB)) {
                             $resp_code = 201;
                             $resp_body = array('register' => 'true');
@@ -163,24 +166,31 @@ if (isset($_GET['action'])) {
             //Login into TeamWork
         case 'login':
             // Checking if $_SESSION["employees_idNumber"] isn't set, if not 401 Unauthorized is returned
-            // if (isset($_SESSION["employees_idNumber"])) {
+            // error_log($request_body);
+      
             $email = $_POST['email'];
             $pword = $_POST['pword'];
             //Sanitising inbound data
             $sess->test_input($pword, $email);
             // Validating inbound $_post data
+      
             if ($sess->emailCheck($email) && $sess->validation_email($email) && $sess->validation_pword($pword)) {
+            
                 if ($dbcon->todoLogin($email, $pword) === 1) {
                     $resp_code = 202;
-                }  if ($dbcon->todoLogin($email, $pword) === 2) {
+         
+                } else if ($dbcon->todoLogin($email, $pword) === 2) {
                     $resp_code = 307;
+            
+                }
+                else {
+                    $resp_code = 401;
                 }
             } else {
                 $resp_code = 401;
             }
-            // } else {
-            //     $resp_code = 406;
-            // }
+            
+            
             break;
 
 
@@ -212,13 +222,12 @@ if (isset($_GET['action'])) {
                 $department = $_POST['department'];
                 $phone_number = $_POST['phone_number'];
                 $clockN = $_POST['clock_Number'];
-                $pword = $_POST['pword'];
                 $DOB = $_POST['DOB'];
 
                 //Sanitising inbound data
                 $sess->test_input($_POST);
-                if ($sess->validation_pword($pword) && $sess->validation_name($firstName, $lastName) && $sess->validation_Clockon($clockN) && $sess->validation_department($department) && $sess->validation_email($email) && $sess->validation_phone_number($phone_number)) {
-                    if ($dbcon->upDateMyDetails($firstName, $lastName, $email, $department, $phone_number, $clockN, $pword, $DOB, $_SESSION['employees_idNumber'])) {
+                if ($sess->validation_name($firstName, $lastName) && $sess->validation_Clockon($clockN) && $sess->validation_department($department) && $sess->validation_email($email) && $sess->validation_phone_number($phone_number)) {
+                    if ($dbcon->upDateMyDetails($firstName, $lastName, $email, $department, $phone_number, $clockN,$DOB, $_SESSION['employees_idNumber'])) {
                         $resp_code = 201;
                     } else {
                         $resp_code = 401;
@@ -396,64 +405,99 @@ if (isset($_GET['action'])) {
             break;
            
 
-        ///// Admin 
+        ///// ADMIN
 ///// Updating employee admin side
         case "upDateEmployee":
-            if ($_SESSION['is_manager'] === true){
-                $objreg = json_decode(file_get_contents("php://input"),true);
-                $email = $_POST['email'];
-                $firstName = $_POST['firstName'];
-                $lastName = $_POST['lastName'];
-                $department = $_POST['department'];
-                $phone_number = $_POST['phone_number'];
-                $clockN = $_POST['clockInNum'];
-                $DOB = $_POST['DOB'];
+            if ($_SESSION['is_manager'] == true){
+                //Decoding json data from admin
+                $request_body = file_get_contents("php://input");
+                $objreg = json_decode($request_body ,true);
+                error_log($request_body);
+                error_log(print_r($objreg, true));
+                $employees_idNumber = $objreg["employees_idNumber"];
+                $firstName = $objreg["firstName"];
+                $lastName = $objreg["lastName"];
+                $email = $objreg["email"];
+                $department = $objreg['department'];
+                $phone_number = $objreg['phone_number'];
+                $clockInNum = $objreg['clockInNum'];
+                $DOB = $objreg['DOB'];
+                $is_manager = $objreg['is_manager'];
              
-                //Sanitising inbound data
-                $sess->test_input($_POST);
 
-                if (
-                    $sess->validation_name($firstName, $lastName) && $sess->validation_Clockon($clockN) && $sess->validation_department($department) && $sess->validation_email($email) && $sess->validation_phone_number($phone_number) && $sess->validation_DOB($DOB)
-                ){
-                    $dbcon->upDateEmployee($fN, $lN, $e, $Dep, $phoneN, $clockN, $DOB, $employees_idNumber);
+                if(
+                $sess->validation_name_ADMIN($objreg["firstName"]) &&
+                $sess->validation_name_ADMIN($objreg["lastName"]) &&
+                $sess->validation_department($objreg['department']) &&
+                $sess->validation_phone_number((int)$objreg['phone_number'])&&
+                $sess->validation_Clockon((int)$objreg['clockInNum'])&&
+                $sess->validation_DOB($objreg['DOB']))
+                
+                {
+                     //Sanitising inbound data
+                    $sess->test_input($_POST);
+                    $dbcon->upDateEmployee($firstName, $lastName,$email, $department , $phone_number, $clockInNum, $DOB, $employees_idNumber);
                     $resp_code = 201;
-                } else{
-                    $resp_code = 401;
-                }
 
-            } else{
-                $resp_code = 401;
-            }
+                } else{
+
+                    $resp_code = 401;
+            } 
+        }
             break;
             ///// Adding new employee admin side
             case "addNewEmployee":
                 if ($_SESSION['is_manager'] === true){
-                    
-                    $email = $_POST['email'];
-                    $firstName = $_POST['firstName'];
-                    $lastName = $_POST['lastName'];
-                    $department = $_POST['department'];
-                    $phone_number = $_POST['phone_number'];
-                    $clockN = $_POST['clockInNum'];
-                    $pword = $_POST['pword'];
-                    $DOB = $_POST['DOB'];
-                    $iSM = $_POST['is_manager'];
-                 
+
+                //Decoding json data from admin
+                $request_body = file_get_contents("php://input");
+                $objreg = json_decode($request_body ,true);
+                error_log($request_body);
+                error_log(print_r($objreg, true));
+                $firstName = $objreg['userInput']["firstName"];
+                $lastName = $objreg['userInput']["lastName"];
+                $email = $objreg['userInput']["email"];
+                $pword = $objreg['userInput']["pword"];
+                $department = $objreg['userInput']['department'];
+                $phone_number = (int)$objreg['userInput']['phone_number'];
+                $clockInNum = (int)$objreg['userInput']['clockInNum'];
+                $DOB = $objreg['userInput']['DOB'];
+                $is_manager = $objreg['userInput']['is_manager'];
+                // $firstName = $_POST["firstName"];
+                if
+                ($sess->validation_name_ADMIN($objreg['userInput']["firstName"])&&
+                $sess->validation_name_ADMIN($objreg['userInput']["lastName"]) &&
+                $sess->validation_department($objreg['userInput']['department']) &&
+                $sess->validation_phone_number((int)$objreg['userInput']['phone_number'])&&
+                $sess->validation_Clockon((int)$objreg['userInput']['clockInNum'])&&
+                $sess->validation_DOB($objreg['userInput']['DOB'])){
+                }
                     //Sanitising inbound data
                     $sess->test_input($_POST);
-    
-                    if (
-                        $sess->validation_pword($pword) && $sess->validation_name($firstName, $lastName) && $sess->validation_Clockon($clockN) && $sess->validation_department($department) && $sess->validation_email($email) && $sess->validation_phone_number($phone_number) && $sess->validation_DOB($DOB)
-                    ){
-                        $dbcon->addNewEmployee($fN, $lN, $e, $Dep, $pN,$iSM, $clockN, $p, $DOB);
-                        $resp_code = 201;
+                    //Add new Employee
+                    $dbcon->addNewEmployee($firstName, $lastName,  $email, $department, $phone_number,$is_manager, $clockInNum, $pword, $DOB);
+                    $resp_code = 201;
                     } else{
-                        $resp_code = 401;
-                    }
-    
-                } else{
                     $resp_code = 401;
+    
+                } 
+                break;
+
+                ///// Deleting employee admin side
+            case "deleteEmployee":
+                if ($_SESSION['is_manager'] === true){
+                    //Sanitising inbound data
+                    $sess->test_input($_POST);    
+                    if(($_SESSION['employees_idNumber']) == ($_POST['employees_idNumber'])){
+                        $resp_code = 401;
+                    } else{
+                        $id = ($_SESSION['employees_idNumber']);
+                        $iSM = ($_SESSION['is_manager']);
+                        $dbcon->deleteEmployee($id,$iSM);
+                        $resp_code = 202;
+                    }      
                 }
+
                 break;
 
 
@@ -491,3 +535,5 @@ function logOut()
     session_unset();
     session_destroy();
 }
+// error_log($request_body);
+// error_log(print_r($objreg, true));

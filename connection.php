@@ -140,10 +140,10 @@ class DB
         return $res;
         return true;
     }
-    public function upDateMyDetails($fN, $lN, $e, $Dep, $phoneN, $clockN, $p, $DOB, $employees_idNumber)
+    public function upDateMyDetails($fN, $lN, $e, $Dep, $phoneN, $clockN, $DOB, $employees_idNumber)
     {
         // if ($this->does_email_exist($e) == true)
-        $sql = "UPDATE Employees SET firstName= '$fN', lastName= '$lN', email= '$e', department= '$Dep', phone_number= '$phoneN', clock_Number= '$clockN',pword= '$p', DOB= '$DOB' WHERE employees_idNumber = '$employees_idNumber'";
+        $sql = "UPDATE Employees SET firstName= '$fN', lastName= '$lN', email= '$e', department= '$Dep', phone_number= '$phoneN', clock_Number= '$clockN', DOB= '$DOB' WHERE employees_idNumber = '$employees_idNumber'";
         $stmt = $this->dbcon->prepare($sql);
         $stmt->bindParam(':firstName', $fN, PDO::PARAM_STR);
         $stmt->bindParam(':lastName', $lN, PDO::PARAM_STR);
@@ -151,7 +151,6 @@ class DB
         $stmt->bindParam(':department', $Dep, PDO::PARAM_STR);
         $stmt->bindParam(':phone_number', $phoneN, PDO::PARAM_STR);
         $stmt->bindParam(':clock_Number', $clockN, PDO::PARAM_INT);
-        $stmt->bindParam(':pword', password_hash(PASSWORD_DEFAULT, $p), PDO::PARAM_STR);
         $stmt->bindParam(':dob', $DOB, PDO::PARAM_STR);
         $stmt->execute();
         if ($stmt->rowCount() == 1) {
@@ -334,13 +333,14 @@ class DB
     public function upDateEmployee($fN, $lN, $e, $Dep, $phoneN, $clockN,$DOB, $employees_idNumber)
     {
         // if ($this->does_email_exist($e) == true)
-        $sql = "UPDATE Employees SET firstName= '$fN', lastName= '$lN', email= '$e', department= '$Dep', phone_number= '$phoneN', clock_Number= '$clockN', DOB= '$DOB' WHERE employees_idNumber = '$employees_idNumber'";
+        $sql = "UPDATE Employees SET firstName= :firstName, lastName= :lastName, email= :email, department= :department, phone_number= :phone_number, clock_Number= :clock_Number, DOB= :dob WHERE employees_idNumber = '$employees_idNumber'";
+        $phoneN = (int)$phoneN;
         $stmt = $this->dbcon->prepare($sql);
         $stmt->bindParam(':firstName', $fN, PDO::PARAM_STR);
         $stmt->bindParam(':lastName', $lN, PDO::PARAM_STR);
         $stmt->bindParam(':email', $e, PDO::PARAM_STR);
         $stmt->bindParam(':department', $Dep, PDO::PARAM_STR);
-        $stmt->bindParam(':phone_number', $phoneN, PDO::PARAM_STR);
+        $stmt->bindParam(':phone_number', $phoneN, PDO::PARAM_INT);
         $stmt->bindParam(':clock_Number', $clockN, PDO::PARAM_INT);
         $stmt->bindParam(':dob', $DOB, PDO::PARAM_STR);
         $stmt->execute();
@@ -356,7 +356,7 @@ class DB
     {
 
         $sql = "INSERT INTO Employees (firstName,lastName,email, department, phone_number,is_manager,clock_Number,pword,DOB) 
-                VALUES (:firstName,:lastName,:email,:department, :phone_number,:is_manage,:clock_Number, :pword,:dob)";
+                VALUES (:firstName,:lastName,:email,:department, :phone_number,:is_manager,:clock_Number, :pword,:dob)";
 
     //// PASSWORD IS HASHED HERE ///////
         $p = password_hash($p,PASSWORD_DEFAULT);
@@ -371,20 +371,21 @@ class DB
         $stmt->bindParam(':clock_Number', $clockN, PDO::PARAM_INT);
         $stmt->bindParam(':pword', $p, PDO::PARAM_STR);
         $stmt->bindParam(':dob', $DOB, PDO::PARAM_STR);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
         $stmt->execute();
         if ($stmt->rowCount() == 1) {
             return true;
-            $_SESSION["employees_idNumber"] = $row["employees_idNumber"];
         }
         return false;
+    }
+    public function deleteEmployee($employees_idNumber)
+    {
+        $sql = "DELETE FROM Employees WHERE employees_idNumber = $employees_idNumber";
+        $stmt = $this->dbcon->prepare($sql);
+        $stmt->execute();
+        return true;
     }
    
 };
 
 
 
-
-
-
-   

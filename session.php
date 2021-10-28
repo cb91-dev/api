@@ -204,6 +204,17 @@ class sessionManager
     }
 
 
+    public function validation_name_ADMIN($Name)
+    {
+        $name_pat = "/^[a-zA-Z]{2,66}/";
+        if (preg_match($name_pat, $Name)) {
+                return true;
+            } else {
+            return false;
+        }
+    }
+
+
 
     // Checking that $_POST is a valid email
 
