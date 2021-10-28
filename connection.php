@@ -86,8 +86,8 @@ class DB
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         $stmt->execute();
         if ($stmt->rowCount() == 1) {
-            return true;
             $_SESSION["employees_idNumber"] = $row["employees_idNumber"];
+            return true;
         }
         return false;
     }
