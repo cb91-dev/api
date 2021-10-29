@@ -311,16 +311,16 @@ class DB
 
    }
    //////////----------Create Schedule------//////////////
-   public function createSchedule ($id,$dep,$dF,$dN,$tF,$tT){
+   public function createSchedule ( $employees_idNumber,$dep,$date,$day,$timeFinish,$timeEnd){
     $sql = "INSERT INTO schedule (employees_idNumber, Department, dateFor,dayName, time_from, time_till)
-    VALUES ('$id', '$dep', '$dF', '$dN', '$tF','$tT')";
+    VALUES (' $employees_idNumber', '$dep', '$date, '$day', '$timeFinish','$timeEnd')";
     $stmt = $this->dbcon->prepare($sql);
-    $stmt->bindParam(':employees_idNumber', $id, PDO::PARAM_STR);
+    $stmt->bindParam(':employees_idNumber',  $employees_idNumber, PDO::PARAM_STR);
     $stmt->bindParam(':Department', $dep, PDO::PARAM_STR);
-    $stmt->bindParam(':dateFor', $dF, PDO::PARAM_STR);
-    $stmt->bindParam(':dayName', $dN, PDO::PARAM_STR);
-    $stmt->bindParam(':time_from', $tF, PDO::PARAM_STR);
-    $stmt->bindParam(':time_till', $tT, PDO::PARAM_STR);
+    $stmt->bindParam(':dateFor', $date, PDO::PARAM_STR);
+    $stmt->bindParam(':dayName', $day, PDO::PARAM_STR);
+    $stmt->bindParam(':time_from', $timeFinish, PDO::PARAM_STR);
+    $stmt->bindParam(':time_till', $timeEnd, PDO::PARAM_STR);
     $stmt->execute();
     if ($stmt->rowCount() == 1) {
         return true;
@@ -379,11 +379,12 @@ class DB
     }
     public function deleteEmployee($employees_idNumber)
     {
-        $sql = "DELETE FROM Employees WHERE employees_idNumber = $employees_idNumber";
+        $sql = "DELETE FROM Employees INNER JOIN api_logs ON employees_idNumber=employees_idNumber WHERE employees_idNumber = $employees_idNumber";
         $stmt = $this->dbcon->prepare($sql);
         $stmt->execute();
         return true;
     }
+
    
 };
 

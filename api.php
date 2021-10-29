@@ -342,8 +342,22 @@ if (isset($_GET['action'])) {
             // Creating new schedule only by manager
         case 'createSchedule':
 
-            if (isset($_SESSION['employees_idNumber'])){
-               $dbcon->createSchedule($id,$dep,$dF,$dN,$tF,$tT);
+            if ($_SESSION['is_manager'] == true){
+                  //Decoding json data from admin
+
+                  $request_body = file_get_contents("php://input");
+                  $objreg = json_decode($request_body ,true);
+                  error_log($request_body);
+                  error_log(print_r($objreg, true));
+                  error_log($objreg["employees_idNumber"]);
+                  $employees_idNumber = $objreg['ScheduleData']["employees_idNumber"];
+                  $time_till = $objreg['ScheduleData']["time_till"];
+                  $department = $objreg['ScheduleData']['department'];
+                  $time_from = $objreg['ScheduleData']['time_from'];
+                  $Day = $objreg['ScheduleData']['Day'];
+                  $Date = $objreg['ScheduleData']['Date'];
+                
+                  $dbcon->createSchedule( $employees_idNumber,$department,$Date,$Day, $time_from, $time_till);
                $resp_code = 201;
             }else{
                 $resp_code = 401;
@@ -426,23 +440,29 @@ if (isset($_GET['action'])) {
              
 
                 if(
-                $sess->validation_name_ADMIN($objreg["firstName"]) &&
-                $sess->validation_name_ADMIN($objreg["lastName"]) &&
-                $sess->validation_department($objreg['department']) &&
-                $sess->validation_phone_number((int)$objreg['phone_number'])&&
-                $sess->validation_Clockon((int)$objreg['clockInNum'])&&
-                $sess->validation_DOB($objreg['DOB']))
+                $sess->validation_name_ADMIN($objreg["firstName"])&&
+                $sess->validation_name_ADMIN($objreg["lastName"])&&
+                $sess->validation_department($objreg['department'])&&
+                $sess->validation_phone_number($objreg['phone_number'])&&
+                $sess->validation_Clockon($objreg['clockInNum'])&&
+                $sess->validation_DOB($objreg['DOB'])
+            )
                 
                 {
+                    error_log($request_body);
+                    error_log(print_r($objreg, true));
                      //Sanitising inbound data
-                    $sess->test_input($_POST);
+                    // $sess->test_input($_POST);
                     $dbcon->upDateEmployee($firstName, $lastName,$email, $department , $phone_number, $clockInNum, $DOB, $employees_idNumber);
                     $resp_code = 201;
 
                 } else{
-
+                    error_log(1);
                     $resp_code = 401;
             } 
+        }else{
+            error_log(2);
+                $resp_code = 401;
         }
             break;
             ///// Adding new employee admin side
@@ -485,15 +505,17 @@ if (isset($_GET['action'])) {
 
                 ///// Deleting employee admin side
             case "deleteEmployee":
-                if ($_SESSION['is_manager'] === true){
-                    //Sanitising inbound data
-                    $sess->test_input($_POST);    
+                if ($_SESSION['is_manager'] === true){  
+                       //Decoding json data from admin
+                $request_body = file_get_contents("php://input");
+                $objreg = json_decode($request_body ,true);
+                error_log($request_body);
+                error_log(print_r($objreg, true));
                     if(($_SESSION['employees_idNumber']) == ($_POST['employees_idNumber'])){
                         $resp_code = 401;
                     } else{
                         $id = ($_SESSION['employees_idNumber']);
-                        $iSM = ($_SESSION['is_manager']);
-                        $dbcon->deleteEmployee($id,$iSM);
+                        $dbcon->deleteEmployee($id);
                         $resp_code = 202;
                     }      
                 }
