@@ -28,6 +28,7 @@ function isUserLoggedIn()
 // Is correct origin ??
 // $sess->is_corret_origin();
 header('Access-Control-Allow-Origin: http://localhost:3000');
+// header('Access-Control-Allow-Origin: https://8f24-138-44-128-242.ngrok.io');
 header("Access-Control-Allow-Credentials: true");
 
 
@@ -126,20 +127,17 @@ if (isset($_GET['action'])) {
                 $clockN = $_POST['clockInNum'];
                 $pword = $_POST['pword'];
                 $DOB = $_POST['DOB'];
-                // error_log($_POST);
-                error_log(print_r($_POST, true));
-                error_log('1');
+               
                 //Sanitising inbound data
-                // $sess->test_input($_POST);
+                $sess->test_input($_POST);
 
                 if (
                     $sess->validation_pword($pword) && $sess->validation_name($firstName, $lastName) && $sess->validation_Clockon($clockN) && $sess->validation_department($department) && $sess->validation_email($email) && $sess->validation_phone_number($phone_number) && $sess->validation_DOB($DOB)
 
                 ) {
-                    error_log('hi');
+     
                     // Checking that $email is FILTER_VALIDATE_EMAIL
                     if ($sess->emailCheck($email)) {
-                        error_log('bye');
                         if ($dbcon->register_new($firstName, $lastName, $email, $department, $phone_number, $clockN, $pword, $DOB)) {
                             $resp_code = 201;
                             $resp_body = array('register' => 'true');
@@ -165,8 +163,7 @@ if (isset($_GET['action'])) {
 
             //Login into TeamWork
         case 'login':
-            // Checking if $_SESSION["employees_idNumber"] isn't set, if not 401 Unauthorized is returned
-            // error_log($request_body);
+            
       
             $email = $_POST['email'];
             $pword = $_POST['pword'];
@@ -323,47 +320,7 @@ if (isset($_GET['action'])) {
                 $resp_body = array('test' => 'true');
             }
             break;
-
-
-            // Update schedule only by manager
-        case 'updateSchedule':
-
-
-            echo ('updateDetails is good');
-            $resp_code = 209;
-            $resp_body = array('test' => 'true');
-
-            echo ('update schedule is bad');
-            $resp_code = 409;
-            $resp_body = array('test' => 'true');
-
-            break;
-
-            // Creating new schedule only by manager
-        case 'createSchedule':
-
-            if ($_SESSION['is_manager'] == true){
-                  //Decoding json data from admin
-
-                  $request_body = file_get_contents("php://input");
-                  $objreg = json_decode($request_body ,true);
-                  error_log($request_body);
-                  error_log(print_r($objreg, true));
-                  error_log($objreg["employees_idNumber"]);
-                  $employees_idNumber = $objreg['ScheduleData']["employees_idNumber"];
-                  $time_till = $objreg['ScheduleData']["time_till"];
-                  $department = $objreg['ScheduleData']['department'];
-                  $time_from = $objreg['ScheduleData']['time_from'];
-                  $Day = $objreg['ScheduleData']['Day'];
-                  $Date = $objreg['ScheduleData']['Date'];
-                
-                  $dbcon->createSchedule( $employees_idNumber,$department,$Date,$Day, $time_from, $time_till);
-               $resp_code = 201;
-            }else{
-                $resp_code = 401;
-            }
-
-            break;
+       
 
         case 'viewClock':
             // Checking if $_SESSION["employees_idNumber"] has been set, if not 401 Unauthorized is returned
@@ -380,15 +337,8 @@ if (isset($_GET['action'])) {
             }
             break;
 
-
-        case 'viewAllEmployees':
-            // if (isset($_SESSION['is_manager'])) {
-                        echo json_encode($dbcon->viewAllEmployees());
-                        $resp_code = 202;
-                        // } else {
-                        //     $resp_code = 401;
-                        // }
-        break;
+            case"viewMySchedule":
+                break;
 
 
         case 'clockIn':
@@ -420,6 +370,8 @@ if (isset($_GET['action'])) {
            
 
         ///// ADMIN
+
+
 ///// Updating employee admin side
         case "upDateEmployee":
             if ($_SESSION['is_manager'] == true){
@@ -449,15 +401,14 @@ if (isset($_GET['action'])) {
             )
                 
                 {
-                    error_log($request_body);
-                    error_log(print_r($objreg, true));
+                    // error_log($request_body);
+                    // error_log(print_r($objreg, true));
                      //Sanitising inbound data
                     // $sess->test_input($_POST);
                     $dbcon->upDateEmployee($firstName, $lastName,$email, $department , $phone_number, $clockInNum, $DOB, $employees_idNumber);
                     $resp_code = 201;
 
                 } else{
-                    error_log(1);
                     $resp_code = 401;
             } 
         }else{
@@ -465,6 +416,18 @@ if (isset($_GET['action'])) {
                 $resp_code = 401;
         }
             break;
+            // List of all Employees in database
+            case 'viewAllEmployees':
+                if ($_SESSION['is_manager'] === true) {
+                            echo json_encode($dbcon->viewAllEmployees());
+                            $resp_code = 202;
+                            } else {
+                                $resp_code = 401;
+                            }
+            break;
+
+
+
             ///// Adding new employee admin side
             case "addNewEmployee":
                 if ($_SESSION['is_manager'] === true){
@@ -472,8 +435,6 @@ if (isset($_GET['action'])) {
                 //Decoding json data from admin
                 $request_body = file_get_contents("php://input");
                 $objreg = json_decode($request_body ,true);
-                error_log($request_body);
-                error_log(print_r($objreg, true));
                 $firstName = $objreg['userInput']["firstName"];
                 $lastName = $objreg['userInput']["lastName"];
                 $email = $objreg['userInput']["email"];
@@ -509,18 +470,64 @@ if (isset($_GET['action'])) {
                        //Decoding json data from admin
                 $request_body = file_get_contents("php://input");
                 $objreg = json_decode($request_body ,true);
-                error_log($request_body);
-                error_log(print_r($objreg, true));
-                    if(($_SESSION['employees_idNumber']) == ($_POST['employees_idNumber'])){
+                    if(($_SESSION['employees_idNumber']) == ($objreg['Employee_id'])){
                         $resp_code = 401;
                     } else{
-                        $id = ($_SESSION['employees_idNumber']);
+                        $id = ($objreg['Employee_id']);
                         $dbcon->deleteEmployee($id);
                         $resp_code = 202;
                     }      
                 }
 
                 break;
+                     // Creating new schedule only by manager
+        case 'addSchedule':
+
+            if ($_SESSION['is_manager'] == true){
+                $request_body = file_get_contents("php://input");
+                $objreg = json_decode($request_body ,true);
+                      error_log($request_body);
+                      error_log(print_r($objreg, true));
+                      $resp_code = 201;
+            
+                  //Decoding json data from admin
+                  $department = $objreg['scheduleData']['department'];
+                  $employees_idNumber = $objreg['scheduleData']["employees_idNumber"];
+                  $startTime = $objreg['scheduleData']["startTime"];
+                  $finishTime = $objreg['scheduleData']['finishTime'];
+                  $ShiftMsg = $objreg['scheduleData']['shiftMsg'];
+                  $scheduleDate = $objreg['scheduleData']['scheduleDate'];
+                
+                  $dbcon->createSchedule( $employees_idNumber,$department, $startTime,$finishTime,  $ShiftMsg, $scheduleDate);
+               $resp_code = 201;
+            }else{
+                $resp_code = 401;
+            }
+
+            break;
+                   // Update schedule only by manager
+        case 'updateSchedule':
+
+
+            echo ('updateDetails is good');
+            $resp_code = 209;
+            $resp_body = array('test' => 'true');
+
+            echo ('update schedule is bad');
+            $resp_code = 409;
+            $resp_body = array('test' => 'true');
+
+            break;
+
+
+        case"viewFullSchedule":
+            // if ($_SESSION['is_manager'] == true) {
+                echo json_encode($dbcon->viewFullSchedule());
+                $resp_code = 202;
+                // } else {
+                //     $resp_code = 401;
+                // }
+            break;
 
 
         default:

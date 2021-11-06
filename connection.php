@@ -311,16 +311,16 @@ class DB
 
    }
    //////////----------Create Schedule------//////////////
-   public function createSchedule ( $employees_idNumber,$dep,$date,$day,$timeFinish,$timeEnd){
-    $sql = "INSERT INTO schedule (employees_idNumber, Department, dateFor,dayName, time_from, time_till)
-    VALUES (' $employees_idNumber', '$dep', '$date, '$day', '$timeFinish','$timeEnd')";
+   public function createSchedule ($employees_idNumber,$department, $startTime,$finishTime,  $ShiftMsg, $scheduleDate){
+    $sql = "INSERT INTO schedule (employees_idNumber, Department,scheduleDate,ShiftMsg,startTime, finishTime)
+    VALUES ( :employees_idNumber, :Department, :scheduleDate, :ShiftMsg, :startTime,:finishTime)";
     $stmt = $this->dbcon->prepare($sql);
-    $stmt->bindParam(':employees_idNumber',  $employees_idNumber, PDO::PARAM_STR);
-    $stmt->bindParam(':Department', $dep, PDO::PARAM_STR);
-    $stmt->bindParam(':dateFor', $date, PDO::PARAM_STR);
-    $stmt->bindParam(':dayName', $day, PDO::PARAM_STR);
-    $stmt->bindParam(':time_from', $timeFinish, PDO::PARAM_STR);
-    $stmt->bindParam(':time_till', $timeEnd, PDO::PARAM_STR);
+    $stmt->bindParam(':employees_idNumber',  $employees_idNumber, PDO::PARAM_INT);
+    $stmt->bindParam(':Department', $department, PDO::PARAM_STR);
+    $stmt->bindParam(':scheduleDate', $scheduleDate, PDO::PARAM_STR);
+    $stmt->bindParam(':ShiftMsg', $ShiftMsg, PDO::PARAM_STR);
+    $stmt->bindParam(':startTime', $startTime, PDO::PARAM_STR);
+    $stmt->bindParam(':finishTime', $finishTime, PDO::PARAM_STR);
     $stmt->execute();
     if ($stmt->rowCount() == 1) {
         return true;
@@ -384,6 +384,18 @@ class DB
         $stmt->execute();
         return true;
     }
+
+       ///---- Viewing ALL details for Team members ----///
+   public function viewFullSchedule()
+   {
+       $sql = "SELECT *
+       FROM Schedule";
+       $stmt = $this->dbcon->prepare($sql);
+       $stmt->execute();
+       $res = $stmt->fetchall(PDO::FETCH_ASSOC);
+       return $res;
+
+   }
 
    
 };
