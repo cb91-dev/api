@@ -311,16 +311,15 @@ class DB
 
    }
    //////////----------Create Schedule------//////////////
-   public function createSchedule ($employees_idNumber,$department, $startTime,$finishTime,  $ShiftMsg, $scheduleDate){
-    $sql = "INSERT INTO schedule (employees_idNumber, Department,scheduleDate,ShiftMsg,startTime, finishTime)
-    VALUES ( :employees_idNumber, :Department, :scheduleDate, :ShiftMsg, :startTime,:finishTime)";
+   public function createSchedule ($employees_idNumber,$department, $startDate_Time,$finishDate_Time,$shiftMsg){
+    $sql = "INSERT INTO Schedule (employees_idNumber, Department,ShiftMsg,startDate_Time, finishDate_Time)
+    VALUES ( :employees_idNumber, :Department, :ShiftMsg, :startDate_Time,:finishDate_Time)";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->bindParam(':employees_idNumber',  $employees_idNumber, PDO::PARAM_INT);
     $stmt->bindParam(':Department', $department, PDO::PARAM_STR);
-    $stmt->bindParam(':scheduleDate', $scheduleDate, PDO::PARAM_STR);
-    $stmt->bindParam(':ShiftMsg', $ShiftMsg, PDO::PARAM_STR);
-    $stmt->bindParam(':startTime', $startTime, PDO::PARAM_STR);
-    $stmt->bindParam(':finishTime', $finishTime, PDO::PARAM_STR);
+    $stmt->bindParam(':ShiftMsg', $shiftMsg, PDO::PARAM_STR);
+    $stmt->bindParam(':startDate_Time', $startDate_Time, PDO::PARAM_STR);
+    $stmt->bindParam(':finishDate_Time', $finishDate_Time, PDO::PARAM_STR);
     $stmt->execute();
     if ($stmt->rowCount() == 1) {
         return true;

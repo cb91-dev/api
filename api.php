@@ -488,17 +488,14 @@ if (isset($_GET['action'])) {
                 $objreg = json_decode($request_body ,true);
                       error_log($request_body);
                       error_log(print_r($objreg, true));
-                      $resp_code = 201;
             
                   //Decoding json data from admin
-                  $department = $objreg['scheduleData']['department'];
-                  $employees_idNumber = $objreg['scheduleData']["employees_idNumber"];
-                  $startTime = $objreg['scheduleData']["startTime"];
-                  $finishTime = $objreg['scheduleData']['finishTime'];
-                  $ShiftMsg = $objreg['scheduleData']['shiftMsg'];
-                  $scheduleDate = $objreg['scheduleData']['scheduleDate'];
-                
-                  $dbcon->createSchedule( $employees_idNumber,$department, $startTime,$finishTime,  $ShiftMsg, $scheduleDate);
+                  $startDate_Time = $objreg['scheduleDataFinal'][0];
+                  $finishDate_Time = $objreg['scheduleDataFinal'][1];
+                  $department = $objreg['scheduleDataFinal'][2];
+                  $employees_idNumber = $objreg['scheduleDataFinal'][3];
+                  $shiftMsg = $objreg['scheduleDataFinal'][4];
+                  $dbcon->createSchedule( $employees_idNumber,$department, $startDate_Time,$finishDate_Time,$shiftMsg);
                $resp_code = 201;
             }else{
                 $resp_code = 401;
