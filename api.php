@@ -1,5 +1,14 @@
 <?php
 // Starting Session 
+// header("Access-Control-Allow-Origin: https://teamwork-c288a.web.app");
+header('Access-Control-Allow-Origin: http://localhost:3000');
+// Starting Session 
+$path = 'https://teamwork-c288a.web.app';
+         session_set_cookie_params(
+            $path,
+            $currentCookieParams["secure"],
+            $currentCookieParams["httponly"]
+         );
 session_start();
 Date_default_timezone_set('Australia/Brisbane');
 $data = file_get_contents("php://input");
@@ -16,7 +25,7 @@ function isUserLoggedIn()
 {
     if (!isset($_SESSION['email'])) {
         return false;
-    } else {
+    }else {
         return true;
     }
 }
@@ -28,6 +37,7 @@ function isUserLoggedIn()
 // Is correct origin ??
 // $sess->is_corret_origin();
 header('Access-Control-Allow-Origin: http://localhost:3000');
+// header("Access-Control-Allow-Origin: https://teamwork-c288a.web.app");
 // header('Access-Control-Allow-Origin: https://8f24-138-44-128-242.ngrok.io');
 header("Access-Control-Allow-Credentials: true");
 
@@ -105,7 +115,11 @@ if (isset($_GET['action'])) {
             if (isset($_SESSION["employees_idNumber"])) {
                 if (isUserLoggedIn()) {
                     $resp_code = 202;
-                } else {
+                } if(($_SESSION['is_manager'] == true)){
+                    isUserLoggedIn();
+                    $resp_code = 307;
+                }
+                else {
                     $resp_code = 401;
                 }
             } else {
@@ -140,14 +154,14 @@ if (isset($_GET['action'])) {
                     if ($sess->emailCheck($email)) {
                         if ($dbcon->register_new($firstName, $lastName, $email, $department, $phone_number, $clockN, $pword, $DOB)) {
                             $resp_code = 201;
-                            $resp_body = array('register' => 'true');
+                   
                         } else {
                             $resp_code = 403;
-                            $resp_body = array('register' => 'false');
+                        
                         }
                     } else {
                         $resp_code = 401;
-                        $resp_body = array('register' => 'false');
+                     
                     }
                 } else {
                     $resp_code = 401;
@@ -338,6 +352,16 @@ if (isset($_GET['action'])) {
             break;
 
             case"viewMySchedule":
+                if(isset($_SESSION['employees_idNumber'])){
+            
+                $mySchedule=$dbcon->viewMyScheduleMaker($_SESSION['employees_idNumber']);
+                echo json_encode($mySchedule);
+
+                $resp_code = 202;
+                } else {
+                    $resp_code = 401;
+
+                }
                 break;
 
 

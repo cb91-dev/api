@@ -11,7 +11,11 @@ class DB
 
     //Function to establish connection with database
     public function __construct()
-    {
+    { 
+        // $user_name = "bennettd_teamWork_admin";
+        // $password = "Philisgreat#101";
+        // //define the data source name 
+        // $dbURI = 'mysql:host=108.61.169.233;port=3306;dbname=bennettd_teamWork_api';
         $user_name = "teamWork";
         $password = "password";
         //define the data source name 
@@ -63,6 +67,8 @@ class DB
         }return 0;
     }
 
+
+
     ////------------------Registering new users/////
 
     public function register_new($fN, $lN, $e, $Dep, $pN, $clockN, $p, $DOB)
@@ -85,11 +91,16 @@ class DB
         $stmt->bindParam(':dob', $DOB, PDO::PARAM_STR);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         $stmt->execute();
-        if ($stmt->rowCount() == 1) {
-            $_SESSION["employees_idNumber"] = $row["employees_idNumber"];
-            return true;
+        error_log(print_r($row)); // send what this 
+        // yeah but I was also thinking print_r($row), because that aray access is whats causing the issue, $stmt 
+        // something like this
+        // sorry was helping linc
+        // :thumbsup:
+        if ($stmt->rowCount() === 1) {
+          return true;
+        }else{
+            return false;
         }
-        return false;
     }
 
     public function log_sessions($req_url, $ipaddress, $user_action, $resp_code, $sess_num, $firstName, $idNumber)
@@ -293,6 +304,16 @@ class DB
         } else {
             return false;
         }
+    }
+
+    public function viewMyScheduleMaker($employees_idNumber){
+        $sql="SELECT * 
+        FROM Schedule 
+        WHERE employees_idNumber = $employees_idNumber";
+        $stmt = $this->dbcon->prepare($sql);
+        $stmt->execute();
+        $res = $stmt->fetchall(PDO::FETCH_ASSOC);
+        return $res;
     }
 
 
