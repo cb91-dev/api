@@ -320,7 +320,7 @@ class DB
    public function viewAllEmployees()
    {
        $sql = "SELECT *
-       FROM Employees";
+       FROM Employees WHERE is_manager = 0";
        $stmt = $this->dbcon->prepare($sql);
        $stmt->execute();
        $res = $stmt->fetchall(PDO::FETCH_ASSOC);
@@ -395,7 +395,7 @@ class DB
     }
     public function deleteEmployee($employees_idNumber)
     {
-        $sql = "DELETE FROM Employees INNER JOIN api_logs ON employees_idNumber=employees_idNumber WHERE employees_idNumber = $employees_idNumber";
+        $sql = "DELETE FROM Employees WHERE employees_idNumber = $employees_idNumber";
         $stmt = $this->dbcon->prepare($sql);
         $stmt->execute();
         return true;

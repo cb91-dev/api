@@ -30,9 +30,6 @@ function isUserLoggedIn()
 
 // Is correct origin ??
 // $sess->is_corret_origin();
-header('Access-Control-Allow-Origin: http://localhost:3000');
-// header("Access-Control-Allow-Origin: https://teamwork-c288a.web.app");
-// header('Access-Control-Allow-Origin: https://8f24-138-44-128-242.ngrok.io');
 header("Access-Control-Allow-Credentials: true");
 
 
@@ -159,11 +156,11 @@ if (isset($_GET['action'])) {
                     }
                 } else {
                     $resp_code = 401;
-                    $resp_body = array('register' => 'false');
+             
                 }
             } else {
                 $resp_code = 401;
-                $resp_body = array('register' => 'false');
+           
             }
             break;
 
@@ -248,18 +245,6 @@ if (isset($_GET['action'])) {
             }
             break;
 
-
-            //Delete personal details
-        case 'deleteDetails':
-            // Checking if $_SESSION["employees_idNumber"] has been set, if not 401 Unauthorized is returned
-            if (isset($_SESSION['employees_idNumber'])) {
-                $resp_code = 200;
-                $resp_body = array('test' => 'true');
-            } else {
-                $resp_code = 401;
-                $resp_body = array('test' => 'true');
-            }
-            break;
 
             // View schedule
         case 'viewMyAvail':
@@ -419,10 +404,6 @@ if (isset($_GET['action'])) {
             )
                 
                 {
-                    // error_log($request_body);
-                    // error_log(print_r($objreg, true));
-                     //Sanitising inbound data
-                    // $sess->test_input($_POST);
                     $dbcon->upDateEmployee($firstName, $lastName,$email, $department , $phone_number, $clockInNum, $DOB, $employees_idNumber);
                     $resp_code = 201;
 
@@ -484,17 +465,16 @@ if (isset($_GET['action'])) {
 
                 ///// Deleting employee admin side
             case "deleteEmployee":
-                if ($_SESSION['is_manager'] === true){  
+                if ($_SESSION['is_manager'] == true){  
                        //Decoding json data from admin
                 $request_body = file_get_contents("php://input");
                 $objreg = json_decode($request_body ,true);
-                    if(($_SESSION['employees_idNumber']) == ($objreg['Employee_id'])){
-                        $resp_code = 401;
-                    } else{
+          
                         $id = ($objreg['Employee_id']);
                         $dbcon->deleteEmployee($id);
                         $resp_code = 202;
-                    }      
+                }else{
+                    $resp_code = 401;    
                 }
 
                 break;
@@ -579,5 +559,3 @@ function logOut()
     session_unset();
     session_destroy();
 }
-// error_log($request_body);
-// error_log(print_r($objreg, true));
