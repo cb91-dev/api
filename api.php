@@ -1,14 +1,8 @@
 <?php
 // Starting Session 
-// header("Access-Control-Allow-Origin: https://teamwork-c288a.web.app");
+
 header('Access-Control-Allow-Origin: http://localhost:3000');
-// Starting Session 
-$path = 'https://teamwork-c288a.web.app';
-         session_set_cookie_params(
-            $path,
-            $currentCookieParams["secure"],
-            $currentCookieParams["httponly"]
-         );
+
 session_start();
 Date_default_timezone_set('Australia/Brisbane');
 $data = file_get_contents("php://input");
@@ -155,7 +149,7 @@ if (isset($_GET['action'])) {
                         if ($dbcon->register_new($firstName, $lastName, $email, $department, $phone_number, $clockN, $pword, $DOB)) {
                             $resp_code = 201;
                    
-                        } else {
+                        }else {
                             $resp_code = 403;
                         
                         }

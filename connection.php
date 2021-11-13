@@ -91,14 +91,10 @@ class DB
         $stmt->bindParam(':dob', $DOB, PDO::PARAM_STR);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         $stmt->execute();
-        error_log(print_r($row)); // send what this 
-        // yeah but I was also thinking print_r($row), because that aray access is whats causing the issue, $stmt 
-        // something like this
-        // sorry was helping linc
-        // :thumbsup:
+        error_log(print_r($row)); 
         if ($stmt->rowCount() === 1) {
           return true;
-        }else{
+        } else{
             return false;
         }
     }

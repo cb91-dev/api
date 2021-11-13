@@ -21,7 +21,7 @@ class sessionManager
     {
         $a = time();
         if (isset($_SESSION['last_time_accessed'])) {
-            if (($a - $_SESSION['last_time_accessed']) > 1) {
+            if (($a - $_SESSION['last_time_accessed']) > 0.5) {
                 http_response_code(200);
             } else {
                 http_response_code(429);
@@ -67,8 +67,8 @@ class sessionManager
         if ($interval->s < 86400) {
             // Checking if $counter is set
             if (isset($counter)) {
-                $end = 1000;
-                // Checking if $counter is greater then limit request of 1000
+                $end = 500;
+                // Checking if $counter is greater then limit request of 500
                 if ($counter > $end) {
                     http_response_code(429);
                     die();
