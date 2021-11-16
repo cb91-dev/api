@@ -465,7 +465,7 @@ if (isset($_GET['action'])) {
 
                 ///// Deleting employee admin side
             case "deleteEmployee":
-                if ($_SESSION['is_manager'] == true){  
+                if ($_SESSION['is_manager'] === true){  
                        //Decoding json data from admin
                 $request_body = file_get_contents("php://input");
                 $objreg = json_decode($request_body ,true);
@@ -481,11 +481,10 @@ if (isset($_GET['action'])) {
                      // Creating new schedule only by manager
         case 'addSchedule':
 
-            if ($_SESSION['is_manager'] == true){
+            if ($_SESSION['is_manager'] === true){
                 $request_body = file_get_contents("php://input");
                 $objreg = json_decode($request_body ,true);
-                      error_log($request_body);
-                      error_log(print_r($objreg, true));
+                    
             
                   //Decoding json data from admin
                   $startDate_Time = $objreg['scheduleDataFinal'][0];
@@ -500,28 +499,33 @@ if (isset($_GET['action'])) {
             }
 
             break;
-                   // Update schedule only by manager
-        case 'updateSchedule':
+          
 
-
-            echo ('updateDetails is good');
-            $resp_code = 209;
-            $resp_body = array('test' => 'true');
-
-            echo ('update schedule is bad');
-            $resp_code = 409;
-            $resp_body = array('test' => 'true');
-
+            case"viewAvail":
+                    if ($_SESSION['is_manager'] === true){
+                        $request_body = file_get_contents("php://input");
+                        $objreg = json_decode($request_body ,true);
+                        
+                        $employees_idNumber = $objreg['employeeId'][0];
+                        error_log($request_body);
+                        error_log(print_r($objreg, true));
+                        $w = $dbcon->viewAvail($employees_idNumber);
+                        echo json_encode($w);
+                        $resp_code = 202;
+                    }else {
+                        $resp_code=401;
+                    }
             break;
 
 
         case"viewFullSchedule":
-            // if ($_SESSION['is_manager'] == true) {
+            if ($_SESSION['is_manager'] == true) {
+
                 echo json_encode($dbcon->viewFullSchedule());
                 $resp_code = 202;
-                // } else {
-                //     $resp_code = 401;
-                // }
+                } else {
+                    $resp_code = 401;
+                }
             break;
 
 

@@ -412,6 +412,15 @@ class DB
        return $res;
 
    }
+   public function viewAvail($employees_idNumber)
+    {
+        $sql = "SELECT *
+        FROM availabilities WHERE employees_idNumber = $employees_idNumber";
+        $stmt = $this->dbcon->prepare($sql);
+        $stmt->execute(array());
+        $res = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $res;
+    }
 
    
 };
