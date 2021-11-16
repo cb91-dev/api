@@ -71,7 +71,8 @@ $sess->test_input($data);
 header('Content-Type: application/json');
 $resp_body = array();
 $resp_code = 500;
-
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$uri = explode( '/', $uri );
 
 
 //------------------------------Switch Case----------------------------
@@ -273,10 +274,9 @@ if (isset($_GET['action'])) {
                 $sess->validation_days($_POST);
                 if ($dbcon->insertMy_Avail($_POST['Monday'], $_POST['Tuesday'], $_POST['Wednesday'], $_POST['Friday'], $_POST['Thursday'], $_POST['Saturday'], $_POST['Sunday'], $_SESSION['employees_idNumber'])) {
                     $resp_code = 201;
-                    $resp_body = array('test' => 'true');
+             
                 } else {
                     $resp_code = 401;
-                    $resp_body = array('test' => 'false');
                 }
             } else {
                 $resp_code = 401;
@@ -499,26 +499,38 @@ if (isset($_GET['action'])) {
             }
 
             break;
-          
 
-            case"viewAvail":
-                    if ($_SESSION['is_manager'] === true){
-                        $request_body = file_get_contents("php://input");
-                        $objreg = json_decode($request_body ,true);
-                        
-                        $employees_idNumber = $objreg['employeeId'][0];
-                        error_log($request_body);
-                        error_log(print_r($objreg, true));
-                        $w = $dbcon->viewAvail($employees_idNumber);
-                        echo json_encode($w);
-                        $resp_code = 202;
-                    }else {
-                        $resp_code=401;
-                    }
-            break;
+            // case"viewAvail":
+            //         if ($_SESSION['is_manager'] === true){
+            //         $id=$_GET['id'];
+            //             echo json_encode($dbcon->viewAvail($id));
+            //             $resp_code = 202;
+            //         }else {
+            //             $resp_code=401;
+            //         }
+            // break;
 
 
-        case"viewFullSchedule":
+            case "viewAvail":
+
+
+            
+                $request_body = file_get_contents("php://input");
+                // error_log("body:".$request_body);
+                $objreg = json_decode($request_body,true);
+                error_log($objreg['Employee_id']);
+                $res = $dbcon->viewAvail($objreg['Employee_id']);
+                error_log(var_export($res, true));
+                error_log( json_encode($res) );
+                echo json_encode($res);// json encode ain't working ლ(ಠ益ಠლ)...........fucking cunt 100% 
+                $resp_code = 202;
+                
+        break;
+
+
+
+
+        case "viewFullSchedule":
             if ($_SESSION['is_manager'] == true) {
 
                 echo json_encode($dbcon->viewFullSchedule());
@@ -531,7 +543,6 @@ if (isset($_GET['action'])) {
 
         default:
             $resp_code = 501;
-            $resp_body = array('test' => 'False');
             //
     }
 };

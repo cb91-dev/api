@@ -50,16 +50,14 @@ class DB
             if (password_verify($pword, $row['pword'])){
             if($row['is_manager'] == 1) {
             //  manger stuff
-            $_SESSION['email'] =  $row["email"];
-            $_SESSION['is_manager'] =  true;
-            $_SESSION['firstName'] = $row["firstName"];
-            $_SESSION["employees_idNumber"] = $row["employees_idNumber"];
+            $_SESSION['email'] ==  $row["email"];
+            $_SESSION['is_manager'] == true;
+            $_SESSION["employees_idNumber"] == $row["employees_idNumber"];
              return 2;
             }
             else{
-                $_SESSION['email'] =  $row["email"];
-                $_SESSION['firstName'] = $row["firstName"];
-                $_SESSION["employees_idNumber"] = $row["employees_idNumber"];
+                $_SESSION['email'] ==  $row["email"];
+                $_SESSION["employees_idNumber"] == $row["employees_idNumber"];
                 return 1;
             }
         } return 0;
@@ -412,12 +410,12 @@ class DB
        return $res;
 
    }
-   public function viewAvail($employees_idNumber)
+   public function viewAvail($id)
     {
-        $sql = "SELECT *
-        FROM availabilities WHERE employees_idNumber = $employees_idNumber";
+        $sql = "SELECT * FROM availabilities WHERE employees_idNumber = :id";
         $stmt = $this->dbcon->prepare($sql);
-        $stmt->execute(array());
+        $stmt->bindParam(":id", $id);
+        $stmt->execute();
         $res = $stmt->fetch(PDO::FETCH_ASSOC);
         return $res;
     }
