@@ -49,10 +49,9 @@ class DB
         if ($stmt->rowCount() == 1) {
             if (password_verify($pword, $row['pword'])){
             if($row['is_manager'] == 1) {
-            //  manger stuff
+            $_SESSION["employees_idNumber"] == $row["employees_idNumber"];
             $_SESSION['email'] ==  $row["email"];
             $_SESSION['is_manager'] == true;
-            $_SESSION["employees_idNumber"] == $row["employees_idNumber"];
              return 2;
             }
             else{
@@ -64,7 +63,6 @@ class DB
             return 0;
         }return 0;
     }
-
 
 
     ////------------------Registering new users/////
