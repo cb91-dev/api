@@ -34,7 +34,7 @@ header("Access-Control-Allow-Credentials: true");
 
 
 
-
+header( 'Accept: application/json, text/plain, /', 'Content-Type:application/json' );
 
 
 
@@ -77,8 +77,6 @@ $resp_code = 500;
 //------------------------------Switch Case----------------------------
 if (isset($_GET['action'])) {
     switch ($_GET['action']) {
-
-
 
         case 'endtest':
             if (isset($_SESSION["employees_idNumber"])) {
@@ -405,12 +403,12 @@ if (isset($_GET['action'])) {
             break;
             // List of all Employees in database
             case 'viewAllEmployees':
-                if ($_SESSION['is_manager'] === true) {
+                // if ($_SESSION['is_manager'] === true) {
                             echo json_encode($dbcon->viewAllEmployees());
                             $resp_code = 202;
-                            } else {
-                                $resp_code = 401;
-                            }
+                            // } else {
+                            //     $resp_code = 401;
+                            // }
             break;
 
 
@@ -488,33 +486,35 @@ if (isset($_GET['action'])) {
 
             break;
 
-        //     case "viewAvail":
+            case "viewAvail":
+                if(($_SESSION['is_manager'] === true)){
 
-
-            
-        //         $request_body = file_get_contents("php://input");
-        //         // error_log("body:".$request_body);
-        //         $objreg = json_decode($request_body,true);
-        //         error_log($objreg['Employee_id']);
-        //         $res = $dbcon->viewAvail($objreg['Employee_id']);
-        //         error_log(var_export($res, true));
-        //         error_log( json_encode($res) );
-        //         echo json_encode($res);// json encode ain't working ლ(ಠ益ಠლ)...........fucking cunt 100% 
-        //         $resp_code = 202;
+                $_SERVER['REQUEST_METHOD'] == "POST";
+                // $request_body = file_get_contents("php://input");
+                // $objreg = json_decode($request_body,true);
+                $objreg = json_decode(file_get_contents('php://input'), true);
+                $employeeId = $objreg['Employee_id'];
+                $res = $dbcon->viewAvail($employeeId);
+                error_log( json_encode($res) );
+                $resp_code = 202;
+               echo json_encode($res);// json encode ain't working
+            }else {
+                $resp_code = 401;
+            }
                 
-        // break;
+        break;
 
 
 
 
         case "viewFullSchedule":
-            // if ($_SESSION['is_manager'] == true) {
+            if ($_SESSION['is_manager'] == true) {
 
                 echo json_encode($dbcon->viewFullSchedule());
                 $resp_code = 202;
-                // } else {
-                //     $resp_code = 401;
-                // }
+                } else {
+                    $resp_code = 401;
+                }
             break;
 
 
