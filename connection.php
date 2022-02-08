@@ -12,15 +12,10 @@ class DB
     //Function to establish connection with database
     public function __construct()
     { 
-        // $user_name = "bennettd_teamWork_admin";
-        // $password = "Philisgreat#101";
-        // //define the data source name 
-        // $dbURI = 'mysql:host=108.61.169.233;port=3306;dbname=bennettd_teamWork_api';
-        $user_name = "teamWork";
-        $password = "password";
+  
         //define the data source name 
         $dbURI = 'mysql:host=127.0.0.1;port=8889;dbname=teamWork';
-        $this->dbcon = new PDO($dbURI, $user_name, $password);
+        $this->dbcon = new PDO($dbURI, $_ENV["USER_NAME"], $_ENV["PASSWORD"]);
         $this->dbcon->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
     /////
